@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-sm">
+                <div class="card-body py-5">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                    <h1 class="display-4">404</h1>
+                    <h2 class="mb-4">Page Not Found</h2>
+                    <p class="lead text-muted mb-5">The page you're looking for doesn't exist or has been moved.</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Go Home
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <h5 class="text-muted mb-3">Looking for something?</h5>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('feed') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-rss me-1"></i>Feed
+                    </a>
+                    <a href="{{ url_for('explore') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-compass me-1"></i>Explore
+                    </a>
+                    <a href="{{ url_for('profile', username=current_user.username) if current_user.is_authenticated else url_for('login') }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user me-1"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

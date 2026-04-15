@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-white text-center">
+                    <h4 class="mb-0">Create New Post</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data" id="postForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Image Upload -->
+                        <div class="mb-4 text-center">
+                            <div class="image-upload-container mb-3">
+                                <div class="upload-area" id="uploadArea">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+                                    <h5>Upload Photo</h5>
+                                    <p class="text-muted">Drag & drop or click to browse</p>
+                                    <input type="file" 
+                                           name="image" 
+                                           id="imageInput" 
+                                           accept="image/*" 
+                                           class="d-none"
+                                           required>
+                                    <button type="button" 
+                                            class="btn btn-primary mt-2" 
+                                            onclick="document.getElementById('imageInput').click()">
+                                        Select from computer
+                                    </button>
+                                </div>
+                                <div class="image-preview mt-3 d-none" id="imagePreview">
+                                    <img src="" alt="Preview" class="img-fluid rounded" id="previewImage">
+                                    <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeImage()">
+                                        <i class="fas fa-trash me-1"></i>Remove
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {% if form.image.errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.image.errors %}
+                                <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Caption -->
+                        <div class="mb-4">
+                            <label for="caption" class="form-label">
+                                <i class="fas fa-edit me-2"></i>Caption
+                            </label>
+                            {{ form.caption(class="form-control", rows="4", placeholder="Write a caption...") }}
+                            <div class="form-text">
+                                <span id="charCount">0</span>/500 characters
+                            </div>
+                            {% if form.caption.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.caption.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Location (Optional) -->
+                        <div class="mb-4">
+                            <label for="location" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Add Location
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="location" 
+                                   placeholder="Add location"
+                                   name="location">
+                        </div>
+                        
+                        <!-- Tag People (Optional) -->
+                        <div class="mb-4">
+                            <label for="tags" class="form-label">
+                                <i class="fas fa-user-tag me-2"></i>Tag People
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="tags" 
+                                   placeholder="Tag people (use @username)"
+                                   name="tags">
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                                <i class="fas fa-share me-2"></i>Share Post
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('feed') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Feed
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.image-upload-container {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 3rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.image-upload-container.drag-over {
+    border-color: #6c63ff;
+    background-color: rgba(108, 99, 255, 0.05);
+}
+
+.upload-area {
+    cursor: pointer;
+}
+
+.image-preview img {
+    max-height: 400px;
+    object-fit: contain;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('imageInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    const captionTextarea = document.getElementById('caption');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Character count for caption
+    if (captionTextarea && charCount) {
+        captionTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            charCount.className = this.value.length > 500 ? 'text-danger' : '';
+        });
+    }
+    
+    // Drag and drop functionality
+    if (uploadArea) {
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // Handle dropped files
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        // Handle click to upload
+        uploadArea.addEventListener('click', function() {
+            imageInput.click();
+        });
+    }
+    
+    // File input change
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+    }
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight() {
+        uploadArea.classList.add('drag-over');
+    }
+    
+    function unhighlight() {
+        uploadArea.classList.remove('drag-over');
+    }
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+    
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            
+            // Check if file is an image
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPG, PNG, GIF)');
+                return;
+            }
+            
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size should be less than 10MB');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                imagePreview.classList.remove('d-none');
+                uploadArea.classList.add('d-none');
+                submitBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Remove image
+    window.removeImage = function() {
+        imageInput.value = '';
+        imagePreview.classList.add('d-none');
+        uploadArea.classList.remove('d-none');
+        submitBtn.disabled = true;
+    };
+    
+    // Form validation
+    const postForm = document.getElementById('postForm');
+    if (postForm) {
+        postForm.addEventListener('submit', function(e) {
+            if (!imageInput.files.length) {
+                e.preventDefault();
+                alert('Please select an image to upload');
+                return false;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
+            return true;
+        });
+    }
+});
+</script>
+{% endblock %}

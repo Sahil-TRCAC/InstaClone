@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Profile Picture -->
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}" 
+                                     class="rounded-circle mb-3" 
+                                     width="150" height="150" 
+                                     style="object-fit: cover;"
+                                     id="profilePreview">
+                                <label for="profile_pic" class="btn btn-primary rounded-circle position-absolute" 
+                                       style="bottom: 10px; right: 10px; width: 40px; height: 40px; cursor: pointer;">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                {{ form.profile_pic(class="d-none", id="profile_pic", accept="image/*") }}
+                            </div>
+                            <div class="form-text">Click the camera icon to change profile picture</div>
+                        </div>
+                        
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            {{ form.username(class="form-control", id="username") }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.username.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.email(class="form-control", id="email", type="email") }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.email.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bio -->
+                        <div class="mb-4">
+                            <label for="bio" class="form-label">Bio</label>
+                            {{ form.bio(class="form-control", id="bio", rows="3", placeholder="Tell us about yourself...") }}
+                            <div class="form-text">
+                                <span id="bioCharCount">{{ current_user.bio|length if current_user.bio else 0 }}</span>/150 characters
+                            </div>
+                            {% if form.bio.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.bio.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Website (Optional) -->
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Website</label>
+                            <input type="url" 
+                                   class="form-control" 
+                                   id="website" 
+                                   name="website"
+                                   placeholder="https://example.com"
+                                   value="{{ current_user.website or '' }}">
+                        </div>
+                        
+                        <!-- Gender (Optional) -->
+                        <div class="mb-4">
+                            <label class="form-label">Gender</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="male" value="male"
+                                           {% if current_user.gender == 'male' %}checked{% endif %}>
+                                    <label class="form-check-label" for="male">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="female" value="female"
+                                           {% if current_user.gender == 'female' %}checked{% endif %}>
+                                    <label class="form-check-label" for="female">Female</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="other" value="other"
+                                           {% if current_user.gender == 'other' %}checked{% endif %}>
+                                    <label class="form-check-label" for="other">Other</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" id="prefer_not_to_say" value="prefer_not_to_say"
+                                           {% if not current_user.gender or current_user.gender == 'prefer_not_to_say' %}checked{% endif %}>
+                                    <label class="form-check-label" for="prefer_not_to_say">Prefer not to say</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{{ url_for('profile', username=current_user.username) }}" 
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Account Management -->
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Account Management</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-lock me-2"></i>Change Password
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-bell me-2"></i>Notification Settings
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-eye me-2"></i>Privacy Settings
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action text-danger d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-trash me-2"></i>Delete Account
+                            </span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const profilePicInput = document.getElementById('profile_pic');
+    const profilePreview = document.getElementById('profilePreview');
+    
+    if (profilePicInput && profilePreview) {
+        profilePicInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+    
+    // Bio character count
+    const bioTextarea = document.getElementById('bio');
+    const bioCharCount = document.getElementById('bioCharCount');
+    
+    if (bioTextarea && bioCharCount) {
+        bioTextarea.addEventListener('input', function() {
+            bioCharCount.textContent = this.value.length;
+            if (this.value.length > 150) {
+                bioCharCount.classList.add('text-danger');
+                this.value = this.value.substring(0, 150);
+                bioCharCount.textContent = 150;
+            } else {
+                bioCharCount.classList.remove('text-danger');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

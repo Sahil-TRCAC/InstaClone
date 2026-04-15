@@ -1,0 +1,441 @@
+/* =====================================================
+   Global Reset & Base
+===================================================== */
+
+:root {
+    --primary-color: #6c63ff;
+    --secondary-color: #ff6b6b;
+    --dark-color: #262626;
+    --light-color: #fafafa;
+    --border-color: #dbdbdb;
+
+    --text-dark: #262626;
+    --text-light: #8e8e8e;
+    --text-muted: #a8a8a8;
+
+    --success-color: #4caf50;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+}
+
+/* Better box model */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--light-color);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Links & Images */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Container width polish */
+.container {
+    max-width: 1100px;
+}
+
+/* =====================================================
+   Navbar
+===================================================== */
+
+.navbar-custom {
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.8rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.navbar-brand {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--dark-color);
+}
+
+.navbar-brand:hover {
+    color: var(--primary-color);
+}
+
+.nav-icons {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-link-icon {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-link-icon:hover {
+    color: var(--primary-color);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--danger-color);
+    color: #fff;
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =====================================================
+   Cards
+===================================================== */
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* =====================================================
+   Posts
+===================================================== */
+
+.post-image {
+    width: 100%;
+    max-height: 600px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.post-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.post-action-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.post-action-btn:hover {
+    transform: scale(1.1);
+}
+
+.post-action-btn.liked {
+    color: var(--danger-color);
+}
+
+.post-action-btn.saved {
+    color: var(--warning-color);
+}
+
+.post-likes {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.post-caption .username {
+    font-weight: 600;
+    margin-right: 0.4rem;
+}
+
+.post-time {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* =====================================================
+   Profile
+===================================================== */
+
+.profile-header {
+    padding: 2rem 0;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.profile-username {
+    font-size: 2rem;
+    font-weight: 300;
+}
+
+.profile-bio {
+    max-width: 400px;
+    margin-bottom: 1rem;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-count {
+    font-weight: 600;
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* =====================================================
+   Buttons
+===================================================== */
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108,99,255,0.3);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* =====================================================
+   Stories
+===================================================== */
+
+.stories-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+}
+
+.story {
+    text-align: center;
+    cursor: pointer;
+}
+
+.story-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    margin-bottom: 0.5rem;
+}
+
+.story-avatar img {
+    border-radius: 50%;
+    border: 3px solid #fff;
+    object-fit: cover;
+}
+
+.story-username {
+    font-size: 0.8rem;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   Explore Grid
+===================================================== */
+
+.explore-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.explore-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.explore-item img {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.explore-item:hover img {
+    transform: scale(1.05);
+}
+
+/* =====================================================
+   Forms
+===================================================== */
+
+.form-control {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(108,99,255,0.2);
+}
+
+/* =====================================================
+   Animations
+===================================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* =====================================================
+   Scrollbar (Chrome)
+===================================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* =====================================================
+   Responsive
+===================================================== */
+
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .explore-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-stats {
+        gap: 1rem;
+    }
+}
+
+.landing-image img {
+    width: 350px;
+    height: auto;
+    display: block;
+    border: none;
+}
+
+.landing-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+}
+
+.landing-image {
+    flex: 1;
+    text-align: center;
+}
+
+.landing-content {
+    flex: 1;
+}
+
+@media (min-width: 768px) {
+    .landing-image {
+        display: block;
+    }
+}
+
+

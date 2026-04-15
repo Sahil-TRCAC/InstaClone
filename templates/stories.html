@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Stories - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Stories Viewer -->
+    <div class="stories-viewer">
+        {% if stories %}
+        <div id="storiesCarousel" class="carousel slide" data-bs-interval="false">
+            <div class="carousel-inner">
+                {% for story in stories %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}" 
+                     data-story-id="{{ story.id }}"
+                     data-index="{{ loop.index0 }}">
+                    <div class="story-content">
+                        <!-- Story Progress Bars -->
+                        <div class="story-progress">
+                            {% for s in stories %}
+                            <div class="progress" style="flex: 1; margin: 0 2px;">
+                                <div class="progress-bar {% if loop.index0 < loop.parent.loop.index0 %}bg-secondary{% elif loop.index0 == loop.parent.loop.index0 %}story-progress-active{% endif %}" 
+                                     role="progressbar"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Story Header -->
+                        <div class="story-header">
+                            <div class="d-flex align-items-center">
+                                <a href="{{ url_for('profile', username=story.user.username) }}" 
+                                   class="text-decoration-none text-white d-flex align-items-center">
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + story.user.profile_pic) }}" 
+                                         class="rounded-circle me-2" 
+                                         width="40" height="40"
+                                         style="object-fit: cover;">
+                                    <div>
+                                        <strong>{{ story.user.username }}</strong>
+                                        <br>
+                                        <small>{{ story.created_at|time_ago }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div>
+                                <button class="btn btn-link text-white" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="fas fa-flag me-2"></i>Report
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="fas fa-ban me-2"></i>Mute
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Story Image -->
+                        <div class="story-image-container">
+                            <img src="{{ url_for('static', filename='uploads/stories/' + story.image_url) }}" 
+                                 class="story-image"
+                                 alt="Story">
+                        </div>
+                        
+                        <!-- Story Actions -->
+                        <div class="story-actions">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control" 
+                                       placeholder="Send message..."
+                                       id="story-reply-{{ story.id }}">
+                                <button class="btn btn-primary" onclick="sendStoryReply({{ story.id }})">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Navigation -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#storiesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#storiesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        {% else %}
+        <!-- No Stories -->
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center">
+                    <i class="fas fa-camera fa-4x text-muted mb-3"></i>
+                    <h3>No stories available</h3>
+                    <p class="text-muted mb-4">When your friends post stories, they'll appear here</p>
+                    <a href="{{ url_for('feed') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Feed
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stories-viewer {
+    height: 100vh;
+    background-color: #000;
+}
+
+.story-content {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-progress {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+}
+
+.story-progress .progress {
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.story-progress-active .progress-bar {
+    animation: progressBar 15s linear forwards;
+    background-color: white;
+}
+
+.story-header {
+    position: absolute;
+    top: 40px;
+    left: 15px;
+    right: 15px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.story-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.story-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.story-actions {
+    position: absolute;
+    bottom: 30px;
+    left: 15px;
+    right: 15px;
+    z-index: 10;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50%;
+    opacity: 0;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 0.5;
+}
+
+@keyframes progressBar {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.getElementById('storiesCarousel');
+    
+    if (carousel) {
+        const bsCarousel = new bootstrap.Carousel(carousel);
+        
+        // Auto-advance stories after 15 seconds
+        carousel.addEventListener('slid.bs.carousel', function() {
+            const activeItem = this.querySelector('.carousel-item.active');
+            const storyId = activeItem.dataset.storyId;
+            
+            // Mark story as viewed
+            markStoryAsViewed(storyId);
+            
+            // Reset and start progress bar
+            resetProgressBars();
+            startProgressBar(activeItem);
+        });
+        
+        // Start progress bar for first story
+        const firstStory = carousel.querySelector('.carousel-item.active');
+        startProgressBar(firstStory);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                bsCarousel.prev();
+            } else if (e.key === 'ArrowRight') {
+                bsCarousel.next();
+            } else if (e.key === 'Escape') {
+                window.location.href = "{{ url_for('feed') }}";
+            }
+        });
+        
+        // Click navigation
+        carousel.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            
+            if (clickX < width / 3) {
+                bsCarousel.prev();
+            } else if (clickX > (2 * width / 3)) {
+                bsCarousel.next();
+            }
+        });
+    }
+});
+
+function startProgressBar(storyItem) {
+    const progressBar = storyItem.querySelector('.story-progress-active .progress-bar');
+    if (progressBar) {
+        progressBar.style.animation = 'none';
+        void progressBar.offsetWidth; // Trigger reflow
+        progressBar.style.animation = 'progressBar 15s linear forwards';
+        
+        // Auto-advance after animation completes
+        setTimeout(() => {
+            const carousel = bootstrap.Carousel.getInstance(document.getElementById('storiesCarousel'));
+            if (carousel) {
+                carousel.next();
+            }
+        }, 15000);
+    }
+}
+
+function resetProgressBars() {
+    document.querySelectorAll('.story-progress-active .progress-bar').forEach(bar => {
+        bar.style.animation = 'none';
+        bar.style.width = '0%';
+    });
+}
+
+async function markStoryAsViewed(storyId) {
+    try {
+        await fetch(`/api/stories/${storyId}/view`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        });
+    } catch (error) {
+        console.error('Error marking story as viewed:', error);
+    }
+}
+
+async function sendStoryReply(storyId) {
+    const input = document.getElementById(`story-reply-${storyId}`);
+    const message = input.value.trim();
+    
+    if (message) {
+        try {
+            const response = await fetch(`/api/stories/${storyId}/reply`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ message: message })
+            });
+            
+            if (response.ok) {
+                input.value = '';
+                InstaClone.showToast('Reply sent', 'success');
+            }
+        } catch (error) {
+            console.error('Error sending reply:', error);
+            InstaClone.showToast('Failed to send reply', 'error');
+        }
+    }
+}
+
+function getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
+}
+</script>
+{% endblock %}

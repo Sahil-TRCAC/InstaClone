@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to InstaClone{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .landing-container {
+    max-width: 935px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+/* MAIN LAYOUT */
+.landing-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    min-height: 80vh;
+}
+
+/* IMAGE */
+.landing-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.landing-image img {
+    width: 260px;
+    height: 260px;
+    object-fit: contain;
+}
+
+/* CONTENT */
+.landing-content {
+    flex: 1;
+    max-width: 400px;
+    text-align: left;
+}
+
+.landing-content h1 {
+    font-family: 'Billabong', 'Instagram Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 60px;
+    margin-bottom: 10px;
+    color: #262626;
+    font-weight: 400;
+}
+
+.landing-content h2 {
+    font-size: 22px;
+    font-weight: 400;
+    color: #262626;
+    margin-bottom: 15px;
+}
+
+.landing-content p {
+    font-size: 14px;
+    color: #8e8e8e;
+    margin-bottom: 25px;
+}
+
+/* BUTTONS */
+.landing-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 300px;
+}
+
+.btn-landing {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    font-size: 15px;
+    text-align: center;
+    transition: 0.2s ease;
+}
+
+.btn-login {
+    background-color: #0095f6;
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: #1877f2;
+}
+
+.btn-register {
+    background-color: transparent;
+    color: #0095f6;
+    border: 1px solid #0095f6;
+}
+
+.btn-register:hover {
+    background-color: #0095f6;
+    color: white;
+}
+
+/* APP BADGES */
+.app-badges {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.app-badges img {
+    height: 40px;
+}
+
+/* DEMO CARD */
+.demo-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    max-width: 300px;
+}
+
+.demo-credentials {
+    background: rgba(255,255,255,0.2);
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-family: monospace;
+}
+
+/* FOOTER */
+.footer-links {
+    margin-top: 60px;
+    text-align: center;
+    width: 100%;
+}
+
+.footer-links a {
+    color: #8e8e8e;
+    margin: 0 6px;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: #0095f6;
+}
+
+.footer-copyright {
+    margin-top: 10px;
+}
+
+/* ALERTS */
+.alert {
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .landing-grid {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .landing-content {
+        text-align: center;
+    }
+
+    .landing-buttons {
+        margin: 0 auto;
+    }
+
+    .landing-image img {
+        width: 200px;
+        height: 200px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+  <div class="landing-container">
+
+    <div class="landing-grid">
+
+        <div class="landing-image">
+            <img src="{{ url_for('static', filename='images/instalogo.png') }}">
+        </div>
+
+        <div class="landing-content">
+            <h1>InstaClone</h1>
+            <h2>Capture and share the world's moments</h2>
+            <p>Join InstaClone to see photos and videos from your friends.</p>
+
+            <div class="landing-buttons">
+                <a href="/login" class="btn-landing btn-login">Log In</a>
+                <a href="/register" class="btn-landing btn-register">Sign Up</a>
+            </div>
+
+            
+        </div>
+
+    </div>
+
+    <!-- FOOTER MUST BE OUTSIDE GRID -->
+    <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Help</a>
+        <a href="#">Press</a>
+        <a href="#">API</a>
+        <a href="#">Jobs</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Locations</a>
+        <a href="#">Language</a>
+
+        <div class="footer-copyright">
+            © 2024 INSTACLONE FROM ASHWIN
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        // Flash message auto-dismiss
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Screenshot rotation animation
+        const screenshots = [
+            'https://www.instagram.com/static/images/homepage/screenshot1.jpg/2c0e1a5a2b0a.jpg',
+            'https://www.instagram.com/static/images/homepage/screenshot2.jpg/4f4b6f8e8b0a.jpg',
+            'https://www.instagram.com/static/images/homepage/screenshot3.jpg/5f5c6f8e8b0a.jpg',
+            'https://www.instagram.com/static/images/homepage/screenshot4.jpg/6f6c6f8e8b0a.jpg'
+        ];
+        
+        let currentScreenshot = 0;
+        const screenshotContainer = document.querySelector('.landing-image div img');
+        
+        if (screenshotContainer) {
+            setInterval(function() {
+                currentScreenshot = (currentScreenshot + 1) % screenshots.length;
+                screenshotContainer.src = screenshots[currentScreenshot];
+            }, 3000);
+        }
+        
+        // Add smooth scrolling to footer links
+        document.querySelectorAll('.footer-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('This feature is coming soon!');
+            });
+        });
+        
+        // Add hover animation to buttons
+        document.querySelectorAll('.btn-landing').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+    
+    // Handle login with demo credentials
+    function fillDemoCredentials() {
+        window.location.href = "{{ url_for('login') }}";
+    }
+    
+    // Track page view
+    console.log('Landing page loaded successfully!');
+</script>
+{% endblock %}

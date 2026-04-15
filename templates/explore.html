@@ -1,0 +1,656 @@
+{% extends "base.html" %}
+
+{% block title %}Explore - InstaClone{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .explore-container {
+        max-width: 935px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+    
+    .explore-header {
+        margin-bottom: 30px;
+    }
+    
+    .explore-header h2 {
+        font-size: 28px;
+        font-weight: 300;
+        color: #262626;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .explore-header h2 i {
+        color: #0095f6;
+    }
+    
+    /* Categories/Tabs */
+    .explore-tabs {
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid #dbdbdb;
+        margin-bottom: 30px;
+    }
+    
+    .explore-tab {
+        display: flex;
+        align-items: center;
+        padding: 15px 30px;
+        color: #8e8e8e;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        border-bottom: 1px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.3s ease;
+    }
+    
+    .explore-tab i {
+        margin-right: 8px;
+        font-size: 14px;
+    }
+    
+    .explore-tab:hover {
+        color: #262626;
+    }
+    
+    .explore-tab.active {
+        color: #262626;
+        border-bottom-color: #262626;
+    }
+    
+    /* Posts Grid */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        margin-top: 20px;
+    }
+    
+    .post-item {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    
+    .post-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .post-item:hover img {
+        transform: scale(1.05);
+    }
+    
+    .post-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 18px;
+        gap: 30px;
+    }
+    
+    .post-item:hover .post-overlay {
+        opacity: 1;
+    }
+    
+    .post-overlay span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    /* Suggestions Section */
+    .suggestions-section {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #dbdbdb;
+    }
+    
+    .suggestions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .suggestions-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #262626;
+        margin: 0;
+    }
+    
+    .suggestions-header a {
+        color: #0095f6;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .suggestions-header a:hover {
+        text-decoration: underline;
+    }
+    
+    .suggestions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .suggestion-card {
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .suggestion-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .suggestion-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .suggestion-username {
+        font-size: 16px;
+        font-weight: 600;
+        color: #262626;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .suggestion-username:hover {
+        text-decoration: underline;
+    }
+    
+    .suggestion-bio {
+        font-size: 12px;
+        color: #8e8e8e;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .follow-btn {
+        background-color: #0095f6;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        font-weight: 600;
+        padding: 6px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+    }
+    
+    .follow-btn:hover {
+        background-color: #1877f2;
+    }
+    
+    .follow-btn.following {
+        background-color: transparent;
+        border: 1px solid #dbdbdb;
+        color: #262626;
+    }
+    
+    .follow-btn.following:hover {
+        background-color: #ffebee;
+        border-color: #ed4956;
+        color: #ed4956;
+    }
+    
+    /* Categories Grid */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .category-item {
+        position: relative;
+        aspect-ratio: 1/1;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .category-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .category-item:hover img {
+        transform: scale(1.1);
+    }
+    
+    .category-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+    }
+    
+    .category-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .category-count {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    /* Load More Button */
+    .load-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .btn-load-more {
+        background-color: transparent;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+        color: #262626;
+        font-weight: 600;
+        padding: 8px 24px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-load-more:hover {
+        background-color: #fafafa;
+        border-color: #b2b2b2;
+    }
+    
+    .btn-load-more i {
+        margin-right: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .suggestions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .explore-tab {
+            padding: 12px 20px;
+            font-size: 11px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .suggestions-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .explore-tab {
+            padding: 10px 15px;
+            font-size: 10px;
+        }
+        
+        .explore-tab i {
+            margin-right: 4px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="explore-container">
+    <!-- Header -->
+    <div class="explore-header">
+        <h2>
+            <i class="fas fa-compass"></i> Explore
+        </h2>
+    </div>
+    
+    <!-- Categories/Topics -->
+    <div class="categories-grid">
+        <div class="category-item" onclick="filterByCategory('travel')">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400" alt="Travel">
+            <div class="category-overlay">
+                <div class="category-name">Travel</div>
+                <div class="category-count">1.2M posts</div>
+            </div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('food')">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" alt="Food">
+            <div class="category-overlay">
+                <div class="category-name">Food</div>
+                <div class="category-count">2.5M posts</div>
+            </div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('fashion')">
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400" alt="Fashion">
+            <div class="category-overlay">
+                <div class="category-name">Fashion</div>
+                <div class="category-count">1.8M posts</div>
+            </div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('fitness')">
+            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400" alt="Fitness">
+            <div class="category-overlay">
+                <div class="category-name">Fitness</div>
+                <div class="category-count">1.5M posts</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Explore Tabs -->
+    <div class="explore-tabs">
+        <a href="#" class="explore-tab active" onclick="showTab('popular', event)">
+            <i class="fas fa-fire"></i> Popular
+        </a>
+        <a href="#" class="explore-tab" onclick="showTab('recent', event)">
+            <i class="fas fa-clock"></i> Recent
+        </a>
+        <a href="#" class="explore-tab" onclick="showTab('following', event)">
+            <i class="fas fa-user-friends"></i> Following
+        </a>
+    </div>
+    
+    <!-- Popular Posts Tab -->
+    <div id="popular-tab" class="tab-content">
+        {% if popular_posts %}
+            <div class="posts-grid">
+                {% for post in popular_posts %}
+                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-item">
+                        <img src="{{ url_for('static', filename='uploads/posts/' + post.image_url) }}" 
+                             alt="Post by {{ post.user.username }}"
+                             loading="lazy">
+                        <div class="post-overlay">
+                            <span>
+                                <i class="fas fa-heart"></i> {{ post.likes.count() }}
+                            </span>
+                            <span>
+                                <i class="fas fa-comment"></i> {{ post.comments.count() }}
+                            </span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-camera"></i>
+                <h3>No Posts Yet</h3>
+                <p>Popular posts will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Recent Posts Tab -->
+    <div id="recent-tab" class="tab-content" style="display: none;">
+        <div class="posts-grid">
+            <!-- This would be populated with recent posts -->
+            <div class="empty-state">
+                <i class="fas fa-clock"></i>
+                <h3>No Recent Posts</h3>
+                <p>Recent posts will appear here.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Following Posts Tab -->
+    <div id="following-tab" class="tab-content" style="display: none;">
+        <div class="posts-grid">
+            <!-- This would be populated with posts from followed users -->
+            <div class="empty-state">
+                <i class="fas fa-user-friends"></i>
+                <h3>No Posts from Following</h3>
+                <p>When people you follow post, they'll appear here.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load More Button -->
+    <div class="load-more">
+        <button class="btn-load-more" onclick="loadMorePosts()">
+            <i class="fas fa-sync-alt"></i> Load More
+        </button>
+    </div>
+    
+    <!-- Suggestions Section -->
+    <div class="suggestions-section">
+        <div class="suggestions-header">
+            <h3>Suggested for You</h3>
+            <a href="{{ url_for('explore') }}">See All</a>
+        </div>
+        
+        <div class="suggestions-grid">
+            {% if suggested_users %}
+                {% for user in suggested_users %}
+                    <div class="suggestion-card">
+                        <a href="{{ url_for('profile', username=user.username) }}">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}" 
+                                 alt="{{ user.username }}"
+                                 class="suggestion-avatar"
+                                 loading="lazy">
+                        </a>
+                        <a href="{{ url_for('profile', username=user.username) }}" 
+                           class="suggestion-username">
+                            {{ user.username }}
+                        </a>
+                        <div class="suggestion-bio">
+                            {{ user.bio or "Welcome to InstaClone!" }}
+                        </div>
+                        <button class="follow-btn" data-username="{{ user.username }}">
+                            Follow
+                        </button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {% for i in range(3) %}
+                    <div class="suggestion-card">
+                        <a href="#">
+                            <img src="{{ url_for('static', filename='uploads/profiles/default.jpg') }}" 
+                                 alt="Suggested User"
+                                 class="suggestion-avatar">
+                        </a>
+                        <a href="#" class="suggestion-username">
+                            user{{ i + 1 }}
+                        </a>
+                        <div class="suggestion-bio">
+                            Follow me for amazing content!
+                        </div>
+                        <button class="follow-btn" data-username="user{{ i + 1 }}">
+                            Follow
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <img id="modalImage" src="" class="img-fluid w-100" alt="">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Tab switching
+    function showTab(tabName, event) {
+        event.preventDefault();
+        
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.explore-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(`${tabName}-tab`).style.display = 'block';
+        
+        // Add active class to clicked tab
+        event.target.closest('.explore-tab').classList.add('active');
+    }
+    
+    // Filter by category
+    function filterByCategory(category) {
+        alert(`Showing ${category} posts - Coming soon!`);
+        // In a real app, this would filter posts by category
+    }
+    
+    // Load more posts
+    function loadMorePosts() {
+        const button = document.querySelector('.btn-load-more');
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        button.disabled = true;
+        
+        // Simulate loading
+        setTimeout(() => {
+            button.innerHTML = '<i class="fas fa-sync-alt"></i> Load More';
+            button.disabled = false;
+            alert('More posts coming soon!');
+        }, 1000);
+    }
+    
+    // Follow button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.follow-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const username = this.dataset.username;
+                const button = this;
+                
+                fetch(`/follow/${username}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.following) {
+                        button.textContent = 'Following';
+                        button.classList.add('following');
+                        
+                        // Show success message
+                        showToast(`You are now following ${username}`, 'success');
+                    } else {
+                        button.textContent = 'Follow';
+                        button.classList.remove('following');
+                        
+                        // Show info message
+                        showToast(`Unfollowed ${username}`, 'info');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+    
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed bottom-0 end-0 m-3`;
+        toast.style.zIndex = '9999';
+        toast.style.maxWidth = '300px';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(toast);
+            bsAlert.close();
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+    
+    // Image click to zoom
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.post-item img').forEach(img => {
+            img.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = this.src;
+                const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+                imageModal.show();
+            });
+        });
+    });
+</script>
+{% endblock %}

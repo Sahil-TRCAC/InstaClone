@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Login - InstaClone{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .login-card {
+        background-color: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 40px;
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .login-header h1 {
+        font-family: 'Billabong', 'Instagram Sans', cursive;
+        font-size: 48px;
+        color: #262626;
+        margin-bottom: 10px;
+    }
+    
+    .form-control {
+        background-color: #fafafa;
+        border: 1px solid #dbdbdb;
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .form-control:focus {
+        background-color: white;
+        border-color: #a8a8a8;
+        box-shadow: none;
+    }
+    
+    .btn-login {
+        background-color: #0095f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 12px;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        background-color: #1877f2;
+    }
+    
+    .btn-login:disabled {
+        background-color: #b2dffc;
+        cursor: not-allowed;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #8e8e8e;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 20px 0;
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dbdbdb;
+    }
+    
+    .divider::before {
+        margin-right: 16px;
+    }
+    
+    .divider::after {
+        margin-left: 16px;
+    }
+    
+    .facebook-login {
+        background: none;
+        border: none;
+        color: #385185;
+        font-weight: 600;
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .facebook-login i {
+        margin-right: 8px;
+        font-size: 18px;
+    }
+    
+    .forgot-password {
+        display: block;
+        text-align: center;
+        color: #00376b;
+        font-size: 12px;
+        margin-top: 20px;
+        text-decoration: none;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+    
+    .signup-prompt {
+        background-color: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .signup-prompt p {
+        margin: 0;
+        color: #262626;
+    }
+    
+    .signup-prompt a {
+        color: #0095f6;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .signup-prompt a:hover {
+        text-decoration: underline;
+    }
+    
+    .get-app {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .get-app p {
+        color: #262626;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    
+    .app-badges {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .app-badge {
+        height: 40px;
+    }
+    
+    .app-badge img {
+        height: 100%;
+    }
+    
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+    }
+    
+    .remember-me input {
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    
+    .remember-me label {
+        color: #262626;
+        font-size: 14px;
+        cursor: pointer;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <i class="fas 
+                        {% if category == 'success' %}fa-check-circle
+                        {% elif category == 'danger' %}fa-exclamation-circle
+                        {% else %}fa-info-circle
+                        {% endif %} me-2">
+                    </i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Login Card -->
+    <div class="login-card shadow-sm">
+        <div class="login-header">
+            <h1>InstaClone</h1>
+            <p class="text-muted">Log in to see photos and videos from your friends.</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-2">
+                <input type="text" 
+                       class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                       id="username" 
+                       name="username" 
+                       placeholder="Username"
+                       value="{{ form.username.data or '' }}"
+                       required>
+                {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-2">
+                <input type="password" 
+                       class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Password"
+                       required>
+                {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="remember-me">
+                {{ form.remember(class="form-check-input") }}
+                {{ form.remember.label(class="form-check-label") }}
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt me-2"></i>Log In
+            </button>
+            
+            <div class="divider">OR</div>
+            
+            <button type="button" class="facebook-login" onclick="alert('Facebook login coming soon!')">
+                <i class="fab fa-facebook-square"></i> Log in with Facebook
+            </button>
+            
+            <a href="#" class="forgot-password">Forgot password?</a>
+        </form>
+    </div>
+    
+    <!-- Sign Up Prompt -->
+    <div class="signup-prompt">
+        <p>
+            Don't have an account? 
+            <a href="{{ url_for('register') }}">Sign up</a>
+        </p>
+    </div>
+    
+    <!-- Get the App -->
+    <div class="get-app">
+        <p>Get the app.</p>
+        <div class="app-badges">
+            <a href="#" class="app-badge" onclick="alert('App Store coming soon!'); return false;">
+                <img src="https://links.codepen.io/education/app-store-badge-black.svg" alt="Download on the App Store">
+            </a>
+            <a href="#" class="app-badge" onclick="alert('Google Play coming soon!'); return false;">
+                <img src="https://links.codepen.io/education/google-play-badge-black.svg" alt="Get it on Google Play">
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission handling
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    loginForm.addEventListener('submit', function(e) {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging in...';
+    });
+    
+    // Show demo modal after 2 seconds if no flash messages
+    {% if not get_flashed_messages() %}
+    setTimeout(function() {
+        const demoModal = new bootstrap.Modal(document.getElementById('demoModal'));
+        demoModal.show();
+    }, 2000);
+    {% endif %}
+});
+
+// Fill demo credentials
+function fillDemoCredentials() {
+    document.getElementById('username').value = 'admin';
+    document.getElementById('password').value = 'password123';
+    
+    // Close modal
+    const demoModal = bootstrap.Modal.getInstance(document.getElementById('demoModal'));
+    demoModal.hide();
+    
+    // Submit form
+    document.getElementById('loginForm').submit();
+}
+
+// Toggle password visibility
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.querySelector('.password-toggle');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+}
+
+// Add password toggle button
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordField = document.getElementById('password');
+    const parent = passwordField.parentElement;
+    
+    parent.style.position = 'relative';
+    
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'password-toggle';
+    toggleBtn.style.position = 'absolute';
+    toggleBtn.style.right = '10px';
+    toggleBtn.style.top = '50%';
+    toggleBtn.style.transform = 'translateY(-50%)';
+    toggleBtn.style.background = 'none';
+    toggleBtn.style.border = 'none';
+    toggleBtn.style.cursor = 'pointer';
+    toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    toggleBtn.onclick = togglePasswordVisibility;
+    
+    parent.appendChild(toggleBtn);
+});
+</script>
+{% endblock %}

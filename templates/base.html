@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="InstaClone - Share photos and videos with your friends">
+    <meta name="author" content="Ashwin">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #fafafa;
+            padding-top: 60px;
+        }
+        
+        /* Billabong Font for Logo */
+        @font-face {
+            font-family: 'Billabong';
+            src: url('https://cdn.rawgit.com/milktronics/beaglegr.am/master/public/fonts/billabong-webfont.eot');
+            src: url('https://cdn.rawgit.com/milktronics/beaglegr.am/master/public/fonts/billabong-webfont.eot?#iefix') format('embedded-opentype'),
+                 url('https://cdn.rawgit.com/milktronics/beaglegr.am/master/public/fonts/billabong-webfont.woff') format('woff'),
+                 url('https://cdn.rawgit.com/milktronics/beaglegr.am/master/public/fonts/billabong-webfont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            height: 60px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        
+        .navbar .container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .navbar-brand {
+            font-family: 'Billabong', 'Instagram Sans', cursive;
+            font-size: 28px;
+            color: #262626 !important;
+            letter-spacing: 0.5px;
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+        }
+        
+        .navbar-brand:hover {
+            color: #262626;
+        }
+        
+        /* Search Bar */
+        .search-form {
+            position: relative;
+            margin: 0 20px;
+        }
+        
+        .search-input {
+            background-color: #efefef;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px 8px 36px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            background-color: #efefef;
+            outline: none;
+            width: 300px;
+            box-shadow: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+        
+        /* Navbar Navigation */
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 22px;
+        }
+        
+        .nav-link {
+            color: #262626 !important;
+            padding: 0 !important;
+            font-size: 24px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            opacity: 0.7;
+            transform: scale(1.05);
+        }
+        
+        .nav-link i {
+            font-size: 24px;
+        }
+        
+        /* Profile Avatar in Navbar */
+        .nav-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #dbdbdb;
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ed4956;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1;
+            border: 2px solid white;
+        }
+        
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            min-width: 200px;
+        }
+        
+        .dropdown-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #262626;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #fafafa;
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: #ffebee;
+        }
+        
+        .dropdown-divider {
+            margin: 8px 0;
+            border-top: 1px solid #dbdbdb;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #dbdbdb;
+            padding: 12px 20px;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+        
+        .mobile-nav-item {
+            color: #262626;
+            font-size: 24px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-nav-item:hover {
+            color: #0095f6;
+            transform: scale(1.1);
+        }
+        
+        /* Main Content */
+        main {
+            min-height: calc(100vh - 60px);
+            padding-bottom: 30px;
+        }
+        
+        /* Flash Messages */
+        .flash-messages-container {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 600px;
+            pointer-events: none;
+        }
+        
+        .alert {
+            pointer-events: auto;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideDown 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .alert i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .alert-success {
+            background-color: rgba(0, 149, 246, 0.95);
+            color: white;
+        }
+        
+        .alert-danger {
+            background-color: rgba(237, 73, 86, 0.95);
+            color: white;
+        }
+        
+        .alert-info {
+            background-color: rgba(54, 54, 54, 0.95);
+            color: white;
+        }
+        
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.95);
+            color: #262626;
+        }
+        
+        .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+            padding: 8px;
+            margin-left: auto;
+        }
+        
+        .btn-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Stories Container */
+        .stories-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+        
+        .stories-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .story {
+            flex: 0 0 auto;
+            text-align: center;
+            min-width: 70px;
+        }
+        
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 2px;
+            margin: 0 auto 5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .story-avatar.has-story {
+            border: 2px solid #e1306c;
+        }
+        
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .story-create {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .story-create:hover {
+            background: #e0e0e0;
+            border-color: #ccc;
+        }
+        
+        .story-create i {
+            font-size: 20px;
+            color: #555;
+        }
+        
+        .story-username {
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70px;
+        }
+        
+        /* Post Card Styles */
+        .card {
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #efefef;
+            padding: 14px 16px;
+        }
+        
+        .post-image {
+            width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            background-color: black;
+        }
+        
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 0;
+        }
+        
+        .post-action-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            padding: 0;
+            cursor: pointer;
+            color: #262626;
+            transition: all 0.2s ease;
+        }
+        
+        .post-action-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .post-action-btn.liked {
+            color: #ed4956;
+        }
+        
+        .post-action-btn.saved {
+            color: #262626;
+        }
+        
+        .post-likes {
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .post-caption {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .comment-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-username {
+            font-weight: 600;
+            color: #262626;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+        
+        .comment-username:hover {
+            text-decoration: underline;
+        }
+        
+        .comment-time {
+            font-size: 11px;
+            color: #8e8e8e;
+            margin-top: 4px;
+        }
+        
+        /* Loading Spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0095f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+                padding-bottom: 70px;
+            }
+            
+            .navbar .container {
+                padding: 0 15px;
+            }
+            
+            .search-form {
+                display: none;
+            }
+            
+            .navbar-nav {
+                display: none;
+            }
+            
+            .mobile-nav {
+                display: flex;
+            }
+            
+            .flash-messages-container {
+                width: 95%;
+                top: 65px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 24px;
+            }
+            
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+        
+        /* Utility Classes */
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .no-focus-outline:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Bootstrap Overrides */
+        .btn-primary {
+            background-color: #0095f6;
+            border-color: #0095f6;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1877f2;
+            border-color: #1877f2;
+        }
+        
+        .btn-outline-primary {
+            color: #0095f6;
+            border-color: #0095f6;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #0095f6;
+            border-color: #0095f6;
+        }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar fixed-top">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                InstaClone
+            </a>
+            
+            <!-- Search Bar (Hidden on mobile) -->
+            {% if current_user.is_authenticated %}
+            <form class="search-form d-none d-md-block" action="{{ url_for('search') }}" method="GET">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       class="search-input" 
+                       name="q" 
+                       placeholder="Search" 
+                       autocomplete="off"
+                       {% if request.endpoint == 'search' and request.args.get('q') %}
+                       value="{{ request.args.get('q') }}"
+                       {% endif %}>
+            </form>
+            {% endif %}
+            
+            <!-- Navigation Links -->
+            <div class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    <a class="nav-link" href="{{ url_for('feed') }}" title="Home">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    
+                    <a class="nav-link" href="{{ url_for('direct') }}" title="Messages">
+                        <i class="fas fa-paper-plane"></i>
+                    </a>
+                    
+                    <a class="nav-link" href="{{ url_for('create_post') }}" title="Create Post">
+                        <i class="fas fa-plus-square"></i>
+                    </a>
+                    
+                    <a class="nav-link" href="{{ url_for('explore') }}" title="Explore">
+                        <i class="fas fa-compass"></i>
+                    </a>
+                    
+                    <a class="nav-link" href="{{ url_for('notifications') }}" title="Notifications">
+                        <i class="fas fa-heart"></i>
+                        {% set unread_notifications = 0 %}
+                        {% if unread_notifications > 0 %}
+                        <span class="notification-badge">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Profile Dropdown with Logout -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}" 
+                                 alt="{{ current_user.username }}"
+                                 class="nav-avatar"
+                                 width="24" height="24"
+                                 style="object-fit: cover;">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">
+                                    <i class="fas fa-user-circle"></i> Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('saved_posts') }}">
+                                    <i class="fas fa-bookmark"></i> Saved
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('edit_profile') }}">
+                                    <i class="fas fa-cog"></i> Settings
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ url_for('logout') }}" method="POST" id="logout-form" style="display: none;"></form>
+                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}" style="font-size: 16px; font-weight: 600; color: #0095f6 !important;">
+                        Log In
+                    </a>
+                    <a class="nav-link" href="{{ url_for('register') }}" style="font-size: 16px; font-weight: 600;">
+                        Sign Up
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    <div class="flash-messages-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas 
+                            {% if category == 'success' %}fa-check-circle
+                            {% elif category == 'danger' %}fa-exclamation-circle
+                            {% elif category == 'warning' %}fa-exclamation-triangle
+                            {% else %}fa-info-circle
+                            {% endif %}">
+                        </i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Mobile Navigation -->
+    {% if current_user.is_authenticated %}
+    <div class="mobile-nav">
+        <a href="{{ url_for('feed') }}" class="mobile-nav-item" title="Home">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="{{ url_for('explore') }}" class="mobile-nav-item" title="Explore">
+            <i class="fas fa-compass"></i>
+        </a>
+        <a href="{{ url_for('create_post') }}" class="mobile-nav-item" title="Create Post">
+            <i class="fas fa-plus-square"></i>
+        </a>
+        <a href="{{ url_for('reels') }}" class="mobile-nav-item" title="Reels">
+            <i class="fas fa-film"></i>
+        </a>
+        <a href="{{ url_for('direct') }}" class="mobile-nav-item" title="Messages">
+            <i class="fas fa-paper-plane"></i>
+        </a>
+        
+        <!-- Mobile Profile Dropdown -->
+        <div class="dropdown">
+            <a class="mobile-nav-item dropdown-toggle" href="#" id="mobileProfileDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileProfileDropdown">
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('saved_posts') }}">
+                        <i class="fas fa-bookmark"></i> Saved
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('edit_profile') }}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('notifications') }}">
+                        <i class="fas fa-heart"></i> Notifications
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form action="{{ url_for('logout') }}" method="POST" id="mobile-logout-form" style="display: none;"></form>
+                    <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery (optional, for some features) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Global InstaClone object
+        window.InstaClone = window.InstaClone || {};
+        
+        // Initialize tooltips and other features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Auto-dismiss flash messages after 5 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+            
+            // Handle like button clicks globally
+            InstaClone.handleLike = function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const postId = button.dataset.postId;
+                const icon = button.querySelector('i');
+                
+                fetch(`/like_post/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'liked') {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        button.classList.add('liked');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        button.classList.remove('liked');
+                    }
+                    const likeCount = document.getElementById(`like-count-${postId}`);
+                    if (likeCount) {
+                        likeCount.textContent = data.count;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+            
+            // Handle follow button clicks
+            InstaClone.handleFollow = function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const username = button.dataset.username;
+                
+                fetch(`/follow/${username}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.following) {
+                        button.textContent = 'Following';
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-outline-primary');
+                    } else {
+                        button.textContent = 'Follow';
+                        button.classList.remove('btn-outline-primary');
+                        button.classList.add('btn-primary');
+                    }
+                    
+                    // Update follower counts if they exist on the page
+                    const followersCount = document.querySelector('.followers-count');
+                    const followingCount = document.querySelector('.following-count');
+                    
+                    if (followersCount) {
+                        followersCount.textContent = data.followers_count;
+                    }
+                    if (followingCount) {
+                        followingCount.textContent = data.following_count;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+            
+            // Handle comment submission
+            InstaClone.handleCommentSubmit = function(e) {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const postId = form.dataset.postId;
+                const input = form.querySelector('input[type="text"]');
+                const content = input.value.trim();
+                
+                if (!content) return;
+                
+                fetch(`/comment_post/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        input.value = '';
+                        InstaClone.showToast('Comment posted!', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+            
+            // Handle save post
+            InstaClone.handleSavePost = function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const postId = button.dataset.postId;
+                const icon = button.querySelector('i');
+                
+                fetch(`/save_post/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.saved) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        button.classList.add('saved');
+                        InstaClone.showToast('Post saved!', 'success');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        button.classList.remove('saved');
+                        InstaClone.showToast('Post removed from saved', 'info');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+            
+            // Handle share post
+            InstaClone.handleShare = function(e) {
+                e.preventDefault();
+                const button = e.currentTarget;
+                const postId = button.dataset.postId;
+                
+                fetch(`/share_post/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        navigator.clipboard.writeText(data.share_url).then(() => {
+                            InstaClone.showToast('Link copied to clipboard!', 'success');
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+            
+            // Toast notification system
+            InstaClone.showToast = function(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `alert alert-${type} alert-dismissible fade show position-fixed bottom-0 end-0 m-3`;
+                toast.style.zIndex = '9999';
+                toast.style.maxWidth = '300px';
+                toast.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(toast);
+                    bsAlert.close();
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            };
+            
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                let searchTimeout;
+                
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    const query = this.value.trim();
+                    
+                    if (query.length >= 2) {
+                        searchTimeout = setTimeout(() => {
+                            window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                        }, 500);
+                    }
+                });
+            }
+            
+            console.log('InstaClone initialized successfully!');
+        });
+        
+        // Lazy loading images
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img[loading="lazy"]');
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            const image = entry.target;
+                            image.src = image.src;
+                            imageObserver.unobserve(image);
+                        }
+                    });
+                });
+                
+                images.forEach(function(image) {
+                    imageObserver.observe(image);
+                });
+            }
+        });
+        
+        // Make logout work with POST method
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create logout forms if they don't exist
+            if (!document.getElementById('logout-form')) {
+                const logoutForm = document.createElement('form');
+                logoutForm.id = 'logout-form';
+                logoutForm.action = "{{ url_for('logout') }}";
+                logoutForm.method = 'POST';
+                logoutForm.style.display = 'none';
+                document.body.appendChild(logoutForm);
+            }
+            
+            if (!document.getElementById('mobile-logout-form')) {
+                const mobileLogoutForm = document.createElement('form');
+                mobileLogoutForm.id = 'mobile-logout-form';
+                mobileLogoutForm.action = "{{ url_for('logout') }}";
+                mobileLogoutForm.method = 'POST';
+                mobileLogoutForm.style.display = 'none';
+                document.body.appendChild(mobileLogoutForm);
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

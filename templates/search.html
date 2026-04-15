@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Search - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="input-group input-group-lg mb-4 shadow">
+            <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" 
+                   class="form-control border-start-0" 
+                   id="search-input"
+                   placeholder="Search users, posts, or tags..."
+                   value="{{ query or '' }}">
+            <button class="btn btn-primary" type="button" id="search-button">
+                Search
+            </button>
+        </div>
+    </div>
+    
+    <!-- Search Results -->
+    <div id="search-results" class="search-results d-none">
+        <!-- Results will be loaded here via JavaScript -->
+    </div>
+    
+    <!-- Recent Searches (if any) -->
+    {% if not query %}
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Recent Searches</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+                {% for recent in recent_searches %}
+                <a href="#" class="badge bg-light text-dark p-2 text-decoration-none">
+                    {{ recent }}
+                </a>
+                {% else %}
+                <p class="text-muted mb-0">No recent searches</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Explore Suggestions -->
+    <div class="card mt-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Discover People</h5>
+        </div>
+        <div class="card-body">
+            {% for user in suggestions %}
+            <div class="d-flex align-items-center mb-3">
+                <a href="{{ url_for('profile', username=user.username) }}" 
+                   class="text-decoration-none text-dark">
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}" 
+                         class="rounded-circle me-3" 
+                         width="50" height="50" 
+                         style="object-fit: cover;">
+                </a>
+                <div class="flex-grow-1">
+                    <a href="{{ url_for('profile', username=user.username) }}" 
+                       class="text-decoration-none text-dark">
+                        <strong>{{ user.username }}</strong>
+                    </a>
+                    <div class="text-muted small">{{ user.followers.count() }} followers</div>
+                </div>
+                <button class="btn btn-primary btn-sm follow-btn" 
+                        data-username="{{ user.username }}">
+                    Follow
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Search Results Content -->
+    {% if query %}
+    <div class="search-results-content">
+        <!-- Users Results -->
+        {% if results.users %}
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">People</h5>
+            </div>
+            <div class="card-body">
+                {% for user in results.users %}
+                <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                    <a href="{{ url_for('profile', username=user.username) }}" 
+                       class="text-decoration-none text-dark">
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}" 
+                             class="rounded-circle me-3" 
+                             width="60" height="60" 
+                             style="object-fit: cover;">
+                    </a>
+                    <div class="flex-grow-1">
+                        <a href="{{ url_for('profile', username=user.username) }}" 
+                           class="text-decoration-none text-dark">
+                            <h6 class="mb-1">{{ user.username }}</h6>
+                        </a>
+                        <p class="text-muted small mb-1">{{ user.bio or "No bio yet" }}</p>
+                        <div class="text-muted small">
+                            {{ user.followers.count() }} followers • {{ user.following.count() }} following
+                        </div>
+                    </div>
+                    {% if current_user.id != user.id %}
+                    <button class="btn btn-primary btn-sm follow-btn" 
+                            data-username="{{ user.username }}">
+                        {% if current_user.is_following(user) %}
+                            Following
+                        {% else %}
+                            Follow
+                        {% endif %}
+                    </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Posts Results -->
+        {% if results.posts %}
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Posts</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for post in results.posts %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="card explore-item">
+                            <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                               class="text-decoration-none">
+                                <img src="{{ url_for('static', filename='uploads/posts/' + post.image_url) }}" 
+                                     class="card-img-top" 
+                                     alt="Post"
+                                     style="height: 250px; object-fit: cover;">
+                                <div class="explore-overlay">
+                                    <div class="d-flex align-items-center text-white">
+                                        <i class="fas fa-heart me-2"></i>
+                                        <span>{{ post.likes|length }}</span>
+                                        <i class="fas fa-comment ms-3 me-2"></i>
+                                        <span>{{ post.comments|length }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- No Results -->
+        {% if not results.users and not results.posts %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h3>No results found</h3>
+            <p class="text-muted">Try searching for something else</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const searchResults = document.getElementById('search-results');
+    
+    // Search on button click
+    if (searchButton) {
+        searchButton.addEventListener('click', performSearch);
+    }
+    
+    // Search on Enter key
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Live search as user types
+        searchInput.addEventListener('input', debounce(function() {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                performLiveSearch(query);
+            } else {
+                searchResults.classList.add('d-none');
+            }
+        }, 300));
+    }
+    
+    // Initialize follow buttons
+    document.querySelectorAll('.follow-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            InstaClone.handleFollow.call(this, e);
+        });
+    });
+    
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (query) {
+            window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        }
+    }
+    
+    function performLiveSearch(query) {
+        fetch(`/api/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displayLiveSearchResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+            });
+    }
+    
+    function displayLiveSearchResults(data) {
+        if (!searchResults) return;
+        
+        searchResults.innerHTML = '';
+        
+        if (data.users && data.users.length > 0) {
+            const usersSection = document.createElement('div');
+            usersSection.className = 'mb-3';
+            
+            data.users.forEach(user => {
+                const userElement = document.createElement('a');
+                userElement.href = `/profile/${user.username}`;
+                userElement.className = 'search-result-item text-decoration-none';
+                userElement.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <img src="/static/uploads/profiles/${user.profile_pic}" 
+                             alt="${user.username}" 
+                             class="search-result-avatar">
+                        <div class="search-result-info">
+                            <div class="search-result-username">${user.username}</div>
+                            ${user.is_following ? '<small class="text-muted">Following</small>' : ''}
+                        </div>
+                    </div>
+                `;
+                usersSection.appendChild(userElement);
+            });
+            
+            searchResults.appendChild(usersSection);
+            searchResults.classList.remove('d-none');
+        } else {
+            searchResults.classList.add('d-none');
+        }
+    }
+    
+    // Debounce function for live search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+});
+</script>
+{% endblock %}

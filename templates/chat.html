@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ user.username }} - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <a href="{{ url_for('direct') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Messages
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}" 
+                                 class="rounded-circle me-3" 
+                                 width="40" height="40" 
+                                 style="object-fit: cover;">
+                            <div>
+                                <strong>{{ current_user.username }}</strong>
+                                <br>
+                                <small class="text-muted">You</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}" 
+                         class="rounded-circle me-3" 
+                         width="40" height="40" 
+                         style="object-fit: cover;">
+                    <div>
+                        <strong>{{ user.username }}</strong>
+                        <br>
+                        <small class="text-muted">Online</small>
+                    </div>
+                </div>
+                
+                <!-- Messages Container -->
+                <div class="card-body" style="height: 400px; overflow-y: auto;" id="messageContainer">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="d-flex mb-3 {% if message.sender_id == current_user.id %}justify-content-end{% endif %}">
+                                {% if message.sender_id != current_user.id %}
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}" 
+                                         class="rounded-circle me-2" 
+                                         width="32" height="32" 
+                                         style="object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <div class="message-bubble {% if message.sender_id == current_user.id %}bg-primary text-white{% else %}bg-light{% endif %} p-3 rounded-3">
+                                        {{ message.content }}
+                                    </div>
+                                    <small class="text-muted ms-2">{{ message.created_at.strftime('%H:%M') }}</small>
+                                </div>
+                                {% if message.sender_id == current_user.id %}
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}" 
+                                         class="rounded-circle ms-2" 
+                                         width="32" height="32" 
+                                         style="object-fit: cover;">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Message Input -->
+                <div class="card-footer bg-white">
+                    <form method="POST" action="{{ url_for('chat', username=user.username) }}" id="messageForm">
+                        <div class="input-group">
+                            <input type="text" 
+                                   name="content" 
+                                   class="form-control" 
+                                   placeholder="Type a message..." 
+                                   required
+                                   autocomplete="off">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane me-2"></i>Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-bubble {
+    max-width: 300px;
+    word-wrap: break-word;
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-scroll to bottom on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('messageContainer');
+    container.scrollTop = container.scrollHeight;
+});
+
+// Auto-refresh messages every 3 seconds
+setInterval(function() {
+    const container = document.getElementById('messageContainer');
+    const shouldAutoScroll = container.scrollHeight - container.scrollTop === container.clientHeight;
+    
+    fetch(`/api/messages/{{ user.id }}`)
+        .then(response => response.json())
+        .then(messages => {
+            // Update messages logic here
+            if (shouldAutoScroll) {
+                container.scrollTop = container.scrollHeight;
+            }
+        });
+}, 3000);
+</script>
+{% endblock %}

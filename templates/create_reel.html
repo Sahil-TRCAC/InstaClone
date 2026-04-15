@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Create Reel - InstaClone{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-film me-2 text-primary"></i>Create New Reel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Upload Video</label>
+                            <div class="border rounded p-4 text-center bg-light">
+                                <div class="mb-3" id="videoPreview" style="display: none;">
+                                    <video id="previewVideo" width="100%" height="400" controls>
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                                
+                                <div id="uploadPrompt">
+                                    <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+                                    <h6>Select a video to upload</h6>
+                                    <p class="text-muted small mb-3">MP4, MOV, or AVI (max. 100MB)</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.video(class="form-control", accept="video/*", id="videoInput") }}
+                                    {% if form.video.errors %}
+                                        {% for error in form.video.errors %}
+                                            <span class="text-danger small">{{ error }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.caption.label(class="form-label") }}
+                            {{ form.caption(class="form-control", rows=3, placeholder="Write a caption...") }}
+                            {% if form.caption.errors %}
+                                {% for error in form.caption.errors %}
+                                    <span class="text-danger small">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text">Maximum 2200 characters</div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex gap-2">
+                            {{ form.submit(class="btn btn-primary", value="Upload Reel") }}
+                            <a href="{{ url_for('reels') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview video before upload
+document.getElementById('videoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const video = document.getElementById('previewVideo');
+        video.src = URL.createObjectURL(file);
+        document.getElementById('videoPreview').style.display = 'block';
+        document.getElementById('uploadPrompt').style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

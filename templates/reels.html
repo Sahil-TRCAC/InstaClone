@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Reels - InstaClone{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .reels-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .reel-card {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 30px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .reel-video {
+        width: 100%;
+        height: auto;
+        max-height: 700px;
+        object-fit: cover;
+        background: black;
+    }
+    
+    .reel-header {
+        padding: 10px 15px;
+        background: white;
+        display: flex;
+        align-items: center;
+    }
+    
+    .reel-footer {
+        padding: 10px 15px;
+        background: white;
+    }
+    
+    .reel-actions {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+    }
+    
+    .reel-action-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #262626;
+        transition: all 0.3s ease;
+    }
+    
+    .reel-action-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .reel-action-btn.liked {
+        color: #ed4956;
+    }
+    
+    .reel-action-btn.saved {
+        color: #262626;
+    }
+    
+    .reel-caption {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    
+    .reel-comments {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #8e8e8e;
+    }
+    
+    /* Grid View for Reels Page */
+    .reels-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        margin-top: 20px;
+    }
+    
+    .reel-grid-item {
+        position: relative;
+        aspect-ratio: 9/16;
+        overflow: hidden;
+        border-radius: 5px;
+    }
+    
+    .reel-grid-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .reel-grid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: white;
+        font-size: 20px;
+        gap: 20px;
+    }
+    
+    .reel-grid-item:hover .reel-grid-overlay {
+        opacity: 1;
+    }
+    
+    .reel-grid-overlay span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    @media (max-width: 768px) {
+        .reels-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .reels-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-film text-primary me-2"></i>Reels
+        </h2>
+        <a href="{{ url_for('create_reel') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create Reel
+        </a>
+    </div>
+    
+    <!-- View Toggle -->
+    <div class="btn-group mb-4" role="group">
+        <button type="button" class="btn btn-outline-primary active" id="gridViewBtn">
+            <i class="fas fa-th-large"></i> Grid
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="feedViewBtn">
+            <i class="fas fa-list"></i> Feed
+        </button>
+    </div>
+    
+    <!-- Grid View (Default) -->
+    <div id="gridView">
+        {% if reels.items %}
+            <div class="reels-grid">
+                {% for reel in reels.items %}
+                <div class="reel-grid-item" onclick="window.location.href='{{ url_for('reels') }}?view={{ reel.id }}'">
+                    <video src="{{ url_for('static', filename='uploads/reels/' + reel.video_url) }}" 
+                           loop 
+                           muted 
+                           playsinline
+                           loading="lazy"
+                           onmouseover="this.play()"
+                           onmouseout="this.pause(); this.currentTime=0;">
+                    </video>
+                    <div class="reel-grid-overlay">
+                        <span>
+                            <i class="fas fa-heart"></i> {{ reel.likes.count() }}
+                        </span>
+                        <span>
+                            <i class="fas fa-comment"></i> {{ reel.comments.count() }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if reels.has_prev or reels.has_next %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        {% if reels.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reels', page=reels.prev_num) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in reels.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                            {% if page_num %}
+                                {% if page_num == reels.page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('reels', page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if reels.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reels', page=reels.next_num) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-film fa-5x text-muted"></i>
+                </div>
+                <h3>No Reels Yet</h3>
+                <p class="text-muted mb-4">Be the first to create a reel!</p>
+                <a href="{{ url_for('create_reel') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create Your First Reel
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Feed View (Single Reel) -->
+    <div id="feedView" style="display: none;">
+        {% set view_reel_id = request.args.get('view', None) %}
+        {% if view_reel_id %}
+            {% set current_reel = reels.items|selectattr('id', 'equalto', view_reel_id|int)|first %}
+            {% if current_reel %}
+                <div class="reels-container">
+                    <div class="reel-card" id="reel-{{ current_reel.id }}">
+                        <!-- Reel Header -->
+                        <div class="reel-header">
+                            <a href="{{ url_for('profile', username=current_reel.user.username) }}" 
+                               class="text-decoration-none text-dark d-flex align-items-center">
+                                <img src="{{ url_for('static', filename='uploads/profiles/' + current_reel.user.profile_pic) }}"
+                                     class="rounded-circle me-2" 
+                                     width="32" height="32" 
+                                     style="object-fit: cover;">
+                                <strong>{{ current_reel.user.username }}</strong>
+                            </a>
+                            
+                            {% if current_user.id == current_reel.user_id %}
+                            <div class="ms-auto">
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-dark" type="button" 
+                                            data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-danger" href="#">
+                                            <i class="fas fa-trash me-2"></i>Delete Reel
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Reel Video -->
+                        <video src="{{ url_for('static', filename='uploads/reels/' + current_reel.video_url) }}" 
+                               class="reel-video" 
+                               controls
+                               loop
+                               playsinline>
+                        </video>
+                        
+                        <!-- Reel Footer -->
+                        <div class="reel-footer">
+                            <div class="reel-actions">
+                                <button class="reel-action-btn like-btn {% if current_user.id in current_reel.likes|map(attribute='user_id')|list %}liked{% endif %}" 
+                                        data-reel-id="{{ current_reel.id }}">
+                                    <i class="{% if current_user.id in current_reel.likes|map(attribute='user_id')|list %}fas{% else %}far{% endif %} fa-heart"></i>
+                                </button>
+                                
+                                <button class="reel-action-btn comment-btn" 
+                                        data-reel-id="{{ current_reel.id }}">
+                                    <i class="far fa-comment"></i>
+                                </button>
+                                
+                                <button class="reel-action-btn share-btn" 
+                                        data-reel-id="{{ current_reel.id }}">
+                                    <i class="far fa-paper-plane"></i>
+                                </button>
+                                
+                                <button class="reel-action-btn save-btn ms-auto {% if current_reel.id in current_user.saved_posts|map(attribute='id')|list %}saved{% endif %}" 
+                                        data-reel-id="{{ current_reel.id }}">
+                                    <i class="{% if current_reel.id in current_user.saved_posts|map(attribute='id')|list %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Likes Count -->
+                            <div class="mt-2">
+                                <strong id="like-count-{{ current_reel.id }}">{{ current_reel.likes.count() }}</strong> likes
+                            </div>
+                            
+                            <!-- Caption -->
+                            <div class="reel-caption">
+                                <a href="{{ url_for('profile', username=current_reel.user.username) }}" 
+                                   class="text-decoration-none text-dark fw-bold">
+                                    {{ current_reel.user.username }}
+                                </a>
+                                {{ current_reel.caption }}
+                            </div>
+                            
+                            <!-- Comments Link -->
+                            <div class="reel-comments">
+                                <a href="#" class="text-decoration-none text-muted view-comments" 
+                                   data-reel-id="{{ current_reel.id }}">
+                                    View all {{ current_reel.comments.count() }} comments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('reels') }}" class="btn btn-outline-primary">
+                <i class="fas fa-th-large me-2"></i>Back to Grid
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="modal fade" id="commentsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="commentsContainer">
+                <!-- Comments will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <form class="w-100" id="commentForm">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Add a comment..." id="commentInput">
+                        <button class="btn btn-primary" type="submit">Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Toggle between grid and feed view
+document.getElementById('gridViewBtn').addEventListener('click', function() {
+    document.getElementById('gridView').style.display = 'block';
+    document.getElementById('feedView').style.display = 'none';
+    this.classList.add('active');
+    document.getElementById('feedViewBtn').classList.remove('active');
+});
+
+document.getElementById('feedViewBtn').addEventListener('click', function() {
+    document.getElementById('gridView').style.display = 'none';
+    document.getElementById('feedView').style.display = 'block';
+    this.classList.add('active');
+    document.getElementById('gridViewBtn').classList.remove('active');
+});
+
+// Like functionality
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const reelId = this.dataset.reelId;
+        
+        fetch(`/like_reel/${reelId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = this.querySelector('i');
+            if (data.status === 'liked') {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                this.classList.add('liked');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                this.classList.remove('liked');
+            }
+            document.getElementById(`like-count-${reelId}`).textContent = data.count;
+        });
+    });
+});
+
+// Save functionality
+document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const reelId = this.dataset.reelId;
+        
+        fetch(`/save_post/${reelId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = this.querySelector('i');
+            if (data.saved) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                this.classList.add('saved');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                this.classList.remove('saved');
+            }
+        });
+    });
+});
+
+// Auto-play videos on hover in grid
+document.querySelectorAll('.reel-grid-item video').forEach(video => {
+    video.addEventListener('mouseenter', function() {
+        this.play();
+    });
+    video.addEventListener('mouseleave', function() {
+        this.pause();
+        this.currentTime = 0;
+    });
+});
+
+// Show URL param for specific reel on load
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('view')) {
+        document.getElementById('gridView').style.display = 'none';
+        document.getElementById('feedView').style.display = 'block';
+        document.getElementById('feedViewBtn').classList.add('active');
+        document.getElementById('gridViewBtn').classList.remove('active');
+    }
+});
+</script>
+{% endblock %}
